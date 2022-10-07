@@ -7,78 +7,64 @@ import org.json.JSONObject;
 
 
 public class RickAndMortyApiSteps {
-
-    public static String printCharacterProperty (String characterName, String characterProperty) {
+    public static JSONObject getCharacterObject(String characterName) {
         Specification.setSpec(Specification.requestSpec(), Specification.responseSpec());
         Response response = given()
-                //.log().all()
+                .log().all()
                 .when()
-                    .get("character/?name="+characterName)
-                .then()//.log().all()
+                    .get("/character/?name="+characterName)
+                .then().log().all()
                     .extract().response();
 
-        JSONObject characterInfoBody = (JSONObject) new JSONObject(response.getBody().asString()).getJSONArray("results").get(0);
+        JSONObject characterObject = (JSONObject) new JSONObject(response.getBody().asString()).getJSONArray("results").get(0);
+        return characterObject;
+    }
 
+    public static JSONObject getCharacterObject(int characterId) {
+        Specification.setSpec(Specification.requestSpec(), Specification.responseSpec());
+        Response response = given()
+                .log().all()
+                .when()
+                    .get("/character/"+characterId)
+                .then().log().all()
+                    .extract().response();
+
+        JSONObject characterObject = (JSONObject) new JSONObject(response.getBody().asString());
+        return characterObject;
+    }
+
+
+    public static String printCharacterProperty (JSONObject characterObject, String characterProperty) {
+
+        String characterName = characterObject.getString("name");
 
         if (characterProperty=="location") {
-            String characterLocationName = characterInfoBody.getJSONObject("location").get("name").toString();
+            String characterLocationName = characterObject.getJSONObject("location").get("name").toString();
             System.out.println(characterName + " location is " + characterLocationName);
             return characterLocationName;
 
         } else if (characterProperty=="episode") {
-            int characterEpisodesNumber = characterInfoBody.getJSONArray("episode").length();
-            String lastEpisodeWithCharacterUrl = characterInfoBody.getJSONArray("episode").get(characterEpisodesNumber-1).toString();
+            int characterEpisodesNumber = characterObject.getJSONArray("episode").length();
+            String lastEpisodeWithCharacterUrl = characterObject.getJSONArray("episode").get(characterEpisodesNumber-1).toString();
             int lastEpisodeWithCharacterId = Integer.parseInt(lastEpisodeWithCharacterUrl.substring(lastEpisodeWithCharacterUrl.lastIndexOf("/")+1));
             System.out.println("Last episode with " + characterName + " is Episode " + lastEpisodeWithCharacterId);
             return Integer.toString(lastEpisodeWithCharacterId);
 
         } else {
-            String characterPropertyValue = characterInfoBody.get(characterProperty).toString();
+            String characterPropertyValue = characterObject.get(characterProperty).toString();
             System.out.println(characterName + " " + characterProperty + " is " + characterPropertyValue);
             return characterPropertyValue;
 
         }
-
     }
-
-    public static String printCharacterProperty (int IdOfCharacter, String characterProperty) {
-        Specification.setSpec(Specification.requestSpec(), Specification.responseSpec());
-        Response response = given()
-                //.log().all()
-                .when()
-                    .get("character/"+IdOfCharacter)
-                .then()//.log().all()
-                    .extract().response();
-
-        JSONObject characterInfoBody = (JSONObject) new JSONObject(response.getBody().asString());
-
-        if (characterProperty=="location") {
-            String characterLocationName = characterInfoBody.getJSONObject("location").get("name").toString();
-            System.out.println(IdOfCharacter + " location is " + characterLocationName);
-            return characterLocationName;
-
-        } else if (characterProperty=="episode") {
-            int characterEpisodesNumber = characterInfoBody.getJSONArray("episode").length();
-            String lastEpisodeWithCharacterUrl = characterInfoBody.getJSONArray("episode").get(characterEpisodesNumber-1).toString();
-            int lastEpisodeWithCharacterId = Integer.parseInt(lastEpisodeWithCharacterUrl.substring(lastEpisodeWithCharacterUrl.lastIndexOf("/")+1));
-            System.out.println("Last episode with " + IdOfCharacter + " is Episode " + lastEpisodeWithCharacterId);
-            return Integer.toString(lastEpisodeWithCharacterId);
-
-        } else {
-            String characterPropertyValue = characterInfoBody.get(characterProperty).toString();
-            System.out.println(IdOfCharacter + " " + characterProperty + " is " + characterPropertyValue);
-            return characterPropertyValue;
-        }
-    }
-
 
     public static int getLastEpisodeId() {
         Specification.setSpec(Specification.requestSpec(), Specification.responseSpec());
         Response response = given()
-                //.log().all()
+                .log().all()
                 .when()
                     .get("episode")
-                .then()//.log().all()
+                .then().log().all()
                     .extract().response();
 
         JSONObject allEpisodesBody = (JSONObject) new JSONObject(response.getBody().asString());
@@ -89,10 +75,10 @@ public class RickAndMortyApiSteps {
     public static int getLastCharacterIdFromEpisode(int episodeId) {
         Specification.setSpec(Specification.requestSpec(), Specification.responseSpec());
         Response response = given()
-                //.log().all()
+                .log().all()
                 .when()
                     .get("episode/"+episodeId)
-                .then()//.log().all()
+                .then().log().all()
                     .extract().response();
 
         JSONArray charactersInLastEpisode = new JSONObject(response.getBody().asString()).getJSONArray("characters");

@@ -1,3 +1,4 @@
+import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -5,15 +6,17 @@ import org.junit.jupiter.api.Test;
 import static api.RickAndMortyApiSteps.*;
 
 public class RunRickMortyApiTests {
+
     @Test
     @DisplayName("Get info about Morty Smith")
     public void getInfoAboutCharacterByName() {
-        printCharacterProperty ("Morty Smith", "id");
-        printCharacterProperty ("Morty Smith", "gender");
-        printCharacterProperty ("Morty Smith", "status");
-        printCharacterProperty ("Morty Smith", "species");
-        printCharacterProperty ("Morty Smith", "location");
-        printCharacterProperty ("Morty Smith", "episode");
+        JSONObject mortySmithInfo = getCharacterObject("Morty Smith");
+        printCharacterProperty(mortySmithInfo, "id");
+        printCharacterProperty(mortySmithInfo, "gender");
+        printCharacterProperty(mortySmithInfo, "status");
+        printCharacterProperty(mortySmithInfo, "species");
+        printCharacterProperty(mortySmithInfo, "location");
+        printCharacterProperty(mortySmithInfo, "episode");
     }
 
     @Test
@@ -25,23 +28,27 @@ public class RunRickMortyApiTests {
     @Test
     @DisplayName("Get info about last character in last episode")
     public void getInfoAboutLastCharacterInLastEpisode () {
-        printCharacterProperty(getLastCharacterIdFromEpisode( getLastEpisodeId() ), "name");
-        printCharacterProperty(getLastCharacterIdFromEpisode( getLastEpisodeId() ), "gender");
-        printCharacterProperty(getLastCharacterIdFromEpisode( getLastEpisodeId() ), "status");
-        printCharacterProperty(getLastCharacterIdFromEpisode( getLastEpisodeId() ), "species");
-        printCharacterProperty(getLastCharacterIdFromEpisode( getLastEpisodeId() ), "location");
-        printCharacterProperty(getLastCharacterIdFromEpisode( getLastEpisodeId() ), "episode");
+        JSONObject lastCharacterInLastEpisodeInfo = getCharacterObject(getLastCharacterIdFromEpisode( getLastEpisodeId() ));
+        printCharacterProperty(lastCharacterInLastEpisodeInfo, "id");
+        printCharacterProperty(lastCharacterInLastEpisodeInfo, "gender");
+        printCharacterProperty(lastCharacterInLastEpisodeInfo, "status");
+        printCharacterProperty(lastCharacterInLastEpisodeInfo, "species");
+        printCharacterProperty(lastCharacterInLastEpisodeInfo, "location");
+        printCharacterProperty(lastCharacterInLastEpisodeInfo, "episode");
     }
 
     @Test
-    @DisplayName("Compare Morty Smith and las character location and species")
+    @DisplayName("Compare two characters location and species")
     public void compareCharactersLocationAndSpecies () {
-        Assertions.assertEquals(printCharacterProperty("Morty Smith", "species"),
-                printCharacterProperty(getLastCharacterIdFromEpisode( getLastEpisodeId() ), "species"),
+        JSONObject mortySmithInfo = getCharacterObject("Morty Smith");
+        JSONObject lastCharacterInLastEpisodeInfo = getCharacterObject(getLastCharacterIdFromEpisode( getLastEpisodeId() ));
+
+        Assertions.assertEquals(printCharacterProperty(mortySmithInfo, "species"),
+                printCharacterProperty(lastCharacterInLastEpisodeInfo, "species"),
                 "Расы персонажей отличаются");
 
-        Assertions.assertEquals(printCharacterProperty("Morty Smith", "location"),
-                printCharacterProperty(getLastCharacterIdFromEpisode( getLastEpisodeId() ), "location"),
+        Assertions.assertEquals(printCharacterProperty(mortySmithInfo, "location"),
+                printCharacterProperty(lastCharacterInLastEpisodeInfo, "location"),
                 "Локации персонажей отличаются");
     }
 
